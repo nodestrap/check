@@ -566,28 +566,26 @@ export function Check(props) {
     const ariaChecked = props['aria-checked'] ?? (isCheckable ? isActive : undefined);
     const ariaPressed = props['aria-pressed'] ?? ((isPressable && isToggler) ? isActive : undefined);
     // jsx:
-    return (<EditableActionControl 
-    // other props:
-    {...restProps} 
-    // semantics:
-    tag={tag} semanticTag={semanticTag} semanticRole={semanticRole} aria-checked={ariaChecked} aria-pressed={ariaPressed} aria-label={props['aria-label'] ?? label} 
-    // accessibilities:
-    active={isActive} press={pressFn} 
-    // variants:
-    mild={props.mild ?? false} 
-    // classes:
-    mainClass={props.mainClass ?? sheet.main} variantClasses={[...(props.variantClasses ?? []),
+    return (React.createElement(EditableActionControl, { ...restProps, 
+        // semantics:
+        tag: tag, semanticTag: semanticTag, semanticRole: semanticRole, "aria-checked": ariaChecked, "aria-pressed": ariaPressed, "aria-label": props['aria-label'] ?? label, 
+        // accessibilities:
+        active: isActive, press: pressFn, 
+        // variants:
+        mild: props.mild ?? false, 
+        // classes:
+        mainClass: props.mainClass ?? sheet.main, variantClasses: [...(props.variantClasses ?? []),
             nudeVariant.class,
             checkVariant.class,
-        ]} 
-    // events:
-    onClick={(e) => {
+        ], 
+        // events:
+        onClick: (e) => {
             props.onClick?.(e);
             if (!e.defaultPrevented) {
                 handleToggleActive();
                 e.preventDefault();
             } // if
-        }} onKeyDown={(e) => {
+        }, onKeyDown: (e) => {
             props.onKeyDown?.(e);
             if (!e.defaultPrevented) {
                 if ((e.key === ' ') || (e.code === 'Space')) {
@@ -595,7 +593,7 @@ export function Check(props) {
                     e.preventDefault();
                 } // if
             } // if
-        }} onKeyUp={(e) => {
+        }, onKeyUp: (e) => {
             props.onKeyUp?.(e);
             if (!e.defaultPrevented) {
                 if ((e.key === ' ') || (e.code === 'Space')) {
@@ -603,49 +601,31 @@ export function Check(props) {
                     e.preventDefault();
                 } // if
             } // if
-        }}>
-            <input 
-    // essentials:
-    ref={(elm) => {
-            setRef(elmRef, elm);
-            setRef(inputRef, elm);
-        }} 
-    // semantics:
-    aria-hidden={true} // the input just for check indicator & storing value, no meaningful content here
-     
-    // accessibilities:
-    {...{
-        autoFocus,
-        tabIndex: -1, // non focusable
-    }} disabled={!propEnabled} // do not submit the value if disabled
-     readOnly={propReadOnly} // locks the value if readOnly
-     checked={isActive} // **controllable check**
-     
-    // values:
-    {...{
-        name,
-        form,
-        defaultValue,
-        value,
-    }} 
-    // validations:
-    {...{
-        required,
-    }} 
-    // formats:
-    {...{
-        type,
-    }} 
-    // events:
-    onChange={(e) => {
-            onChange?.(e);
-            // then do nothing here, just for satisfying React for controllable readonly input
-            // passing `onChange={undefined}` causing React unhappy
-        }} onClick={(e) => e.stopPropagation()} // prevents firing `change` event triggering parent's `onClick`
-    />
-            {props.children && <span>
-                {props.children}
-            </span>}
-        </EditableActionControl>);
+        } },
+        React.createElement("input", { 
+            // essentials:
+            ref: (elm) => {
+                setRef(elmRef, elm);
+                setRef(inputRef, elm);
+            }, "aria-hidden": true, ...{
+                autoFocus,
+                tabIndex: -1, // non focusable
+            }, disabled: !propEnabled, readOnly: propReadOnly, checked: isActive, ...{
+                name,
+                form,
+                defaultValue,
+                value,
+            }, ...{
+                required,
+            }, ...{
+                type,
+            }, 
+            // events:
+            onChange: (e) => {
+                onChange?.(e);
+                // then do nothing here, just for satisfying React for controllable readonly input
+                // passing `onChange={undefined}` causing React unhappy
+            }, onClick: (e) => e.stopPropagation() }),
+        props.children && React.createElement("span", null, props.children)));
 }
 export { Check as default };
