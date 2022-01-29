@@ -11,24 +11,27 @@ import type {
 }                           from '@cssfn/css-types'   // ts defs support for cssfn
 import {
     // compositions:
-    composition,
     mainComposition,
+    
+    
+    
+    // styles:
+    style,
+    vars,
     imports,
     
     
     
-    // layouts:
-    layout,
-    vars,
-    children,
-    
-    
-    
     // rules:
+    rule,
     variants,
     states,
-    rule,
     isNotLastChild,
+    
+    
+    
+    //combinators:
+    children,
     
     
     
@@ -79,13 +82,9 @@ import {
     usesSizeVariant,
     notNude,
     isNude,
-    usesNudeVariant,
-    NudeVariant,
-    useNudeVariant,
     usesMildVariant,
     usesForeg,
     usesBorder,
-    usesBorderStroke,
     usesBorderRadius,
     usesPadding,
     convertRefToDecl,
@@ -181,12 +180,12 @@ export const usesCheckAnim = () => {
     
     
     return [
-        () => composition([
-            imports([
+        () => style({
+            ...imports([
                 // animations:
                 anim(),
             ]),
-            vars({
+            ...vars({
                 [checkAnimDecls.filter] : [[ // double array => makes the JSS treat as space separated values
                     // combining: filter1 * filter2 * filter3 ...
                     
@@ -208,12 +207,12 @@ export const usesCheckAnim = () => {
                     ...checkPropsManager.anims().map(fallbackNoneAnim),
                 ],
             }),
-            vars(Object.fromEntries([
+            ...vars(Object.fromEntries([
                 ...checkPropsManager.filters().filter(filterRef).map(convertRefToDecl).map((decl) => [ decl, animRefs.filterNone ]),
                 ...checkPropsManager.transfs().filter(filterRef).map(convertRefToDecl).map((decl) => [ decl, animRefs.transfNone ]),
                 ...checkPropsManager.anims().filter(filterRef).map(convertRefToDecl).map((decl) => [ decl, animRefs.animNone ]),
             ])),
-        ]),
+        }),
         checkAnimRefs,
         checkAnimDecls,
         checkPropsManager,
@@ -245,21 +244,21 @@ const [checkClearRefs, checkClearDecls] = createCssVar<CheckClearVars>();
 
 /**
  * Uses check & clear states.
- * @returns A `[Factory<StyleCollection>, ReadonlyRefs, ReadonlyDecls]` represents check & clear state definitions.
+ * @returns A `[Factory<Rule>, ReadonlyRefs, ReadonlyDecls]` represents check & clear state definitions.
  */
 export const usesCheckClearState = () => {
     return [
-        () => composition([
-            states([
-                isActived([
-                    vars({
+        () => style({
+            ...states([
+                isActived({
+                    ...vars({
                         [checkClearDecls.filterIn ] : cssProps.filterCheck,
                         
                         [checkClearDecls.transfIn ] : cssProps.transfCheck,
                     }),
-                ]),
-                isActivating([
-                    vars({
+                }),
+                isActivating({
+                    ...vars({
                         [checkClearDecls.filterIn ] : cssProps.filterCheck,
                         [checkClearDecls.filterOut] : cssProps.filterClear,
                         
@@ -268,9 +267,9 @@ export const usesCheckClearState = () => {
                         
                         [checkClearDecls.anim     ] : cssProps.animCheck,
                     }),
-                ]),
-                isPassivating([
-                    vars({
+                }),
+                isPassivating({
+                    ...vars({
                         [checkClearDecls.filterIn ] : cssProps.filterCheck,
                         [checkClearDecls.filterOut] : cssProps.filterClear,
                         
@@ -279,16 +278,16 @@ export const usesCheckClearState = () => {
                         
                         [checkClearDecls.anim     ] : cssProps.animClear,
                     }),
-                ]),
-                isPassived([
-                    vars({
+                }),
+                isPassived({
+                    ...vars({
                         [checkClearDecls.filterOut] : cssProps.filterClear,
                         
                         [checkClearDecls.transfOut] : cssProps.transfClear,
                     }),
-                ]),
+                }),
             ]),
-        ]),
+        }),
         checkClearRefs,
         checkClearDecls,
     ] as const;
@@ -329,15 +328,15 @@ export const usesCheckLayout = () => {
     
     
     
-    return composition([
-        imports([
+    return style({
+        ...imports([
             // layouts:
             usesEditableActionControlLayout(),
             
             // animations:
             checkAnim(),
         ]),
-        layout({
+        ...style({
             // layouts:
             display        : 'inline-flex', // use inline flexbox, so it takes the width & height as we set
             flexDirection  : 'row',         // flow to the document's writing flow
@@ -353,17 +352,17 @@ export const usesCheckLayout = () => {
             
             
             // children:
-            ...children('::before', [
-                imports([
+            ...children('::before', {
+                ...imports([
                     fillTextLineHeightLayout(),
                 ]),
-            ]),
-            ...children(inputElm, [
-                imports([
+            }),
+            ...children(inputElm, {
+                ...imports([
                     // layouts:
                     usesEditableActionControlLayout(),
                 ]),
-                layout({
+                ...style({
                     // layouts:
                     display       : 'inline-block', // use inline-block, so it takes the width & height as we set
                     
@@ -381,6 +380,10 @@ export const usesCheckLayout = () => {
                     // spacings:
                     [paddingDecls.paddingInline] : '0px', // discard padding
                     [paddingDecls.paddingBlock ] : '0px', // discard padding
+                    ...isNotLastChild({
+                        // spacing between input & label:
+                        marginInlineEnd : cssProps.spacing,
+                    }),
                     
                     
                     
@@ -395,20 +398,20 @@ export const usesCheckLayout = () => {
                     
                     
                     // animations:
-                    filter        : 'initial !important', // uses parent filter
+                    filter        : [['initial'], '!important'], // uses parent filter
                     
                     
                     
                     // children:
-                    ...children(checkElm, [
-                        imports([
+                    ...children(checkElm, {
+                        ...imports([
                             // check indicator:
                             usesIconImage(
                                 /*iconImage: */cssProps.img,
                                 /*iconColor: */foregRefs.foreg,
                             ),
                         ]),
-                        layout({
+                        ...style({
                             // layouts:
                             content   : '""',
                             display   : 'block', // fills the entire parent's width
@@ -427,221 +430,164 @@ export const usesCheckLayout = () => {
                             transf    : checkAnimRefs.transf,
                             anim      : checkAnimRefs.anim,
                         }),
-                    ]),
+                    }),
                     
                     
                     
                     // customize:
                     ...usesGeneralProps(cssProps), // apply general cssProps
                 }),
-                variants([
-                    isNotLastChild([
-                        layout({
-                            // spacing between input & label:
-                            marginInlineEnd : cssProps.spacing,
-                        }),
-                    ]),
-                ]),
-            ]),
-            ...children(labelElm, [
-                layout({
-                    // layouts:
-                    display       : 'inline', // use inline, so it takes the width & height automatically
-                    
-                    
-                    
-                    // sizes:
-                    flex          : [[1, 1, 0]], // growable, shrinkable, initial from 0 width (setting initial to `auto`, when wrapped to next line, causing the text is not centered)
-                    
-                    
-                    
-                    // positions:
-                    verticalAlign : 'baseline', // label's text should be aligned with sibling text, so the label behave like <span> wrapper
-                    
-                    
-                    
-                    // customize:
-                    ...usesGeneralProps(usesPrefixedProps(cssProps, 'label')), // apply general cssProps starting with label***
-                }),
-            ]),
+            }),
+            ...children(labelElm, {
+                // layouts:
+                display       : 'inline', // use inline, so it takes the width & height automatically
+                
+                
+                
+                // sizes:
+                flex          : [[1, 1, 0]], // growable, shrinkable, initial from 0 width (setting initial to `auto`, when wrapped to next line, causing the text is not centered)
+                
+                
+                
+                // positions:
+                verticalAlign : 'baseline', // label's text should be aligned with sibling text, so the label behave like <span> wrapper
+                
+                
+                
+                // customize:
+                ...usesGeneralProps(usesPrefixedProps(cssProps, 'label')), // apply general cssProps starting with label***
+            }),
         }),
-    ]);
+    });
 };
 export const usesCheckVariants = () => {
     // dependencies:
     
     // layouts:
-    const [sizes] = usesSizeVariant((sizeName) => composition([
-        layout({
-            // overwrites propName = propName{SizeName}:
-            ...overwriteProps(cssDecls, usesSuffixedProps(cssProps, sizeName)),
-        }),
-    ]));
+    const [sizes] = usesSizeVariant((sizeName) => style({
+        // overwrites propName = propName{SizeName}:
+        ...overwriteProps(cssDecls, usesSuffixedProps(cssProps, sizeName)),
+    }));
     
     // colors:
     const [, mildRefs           ] = usesMildVariant();
     
     // borders:
     const [, , borderDecls      ] = usesBorder();
-    const [, , borderStrokeDecls] = usesBorderStroke();
     const [, , borderRadiusDecls] = usesBorderRadius();
     
-    // spacings:
-    const [, , paddingDecls     ] = usesPadding();
     
     
-    
-    return composition([
-        imports([
+    return style({
+        ...imports([
             // variants:
             usesEditableActionControlVariants(),
             
             // layouts:
             sizes(),
-            usesNudeVariant(),
         ]),
-        variants([
-            rule(['.btn', '.togglerBtn'], [
-                imports([
+        ...variants([
+            rule(['.btn', '.togglerBtn'], {
+                ...imports([
                     // layouts:
                     usesButtonLayout(),
                 ]),
-                layout({
+                ...style({
                     // layouts:
                     flexWrap       : 'nowrap', // because the input is visually hidden => prevents the label from wrapping to the next row
                     
                     
                     
                     // children:
-                    ...children(['::before', inputElm], [
-                        layout({
-                            // layouts:
-                            display : 'none',
-                        }),
-                    ]),
-                    ...children(labelElm, [
-                        layout({
-                            // layouts:
-                            display        : 'inherit',
-                            flexDirection  : 'inherit',
-                            justifyContent : 'inherit',
-                            alignItems     : 'inherit',
-                            flexWrap       : 'inherit',
-                            
-                            
-                            
-                            // sizes:
-                            flex      : [[1, 1, '100%']], // growable, shrinkable, initial 100% parent's width
-                            alignSelf : 'stretch',        // follows parent's height
-                            
-                            
-                            
-                            // customize:
-                            ...usesGeneralProps(usesPrefixedProps(cssProps, 'btn')), // apply general cssProps starting with btn***
-                        }),
-                    ]),
+                    ...children(['::before', inputElm], {
+                        // layouts:
+                        display : 'none',
+                    }),
+                    ...children(labelElm, {
+                        // layouts:
+                        display        : 'inherit',
+                        flexDirection  : 'inherit',
+                        justifyContent : 'inherit',
+                        alignItems     : 'inherit',
+                        flexWrap       : 'inherit',
+                        
+                        
+                        
+                        // sizes:
+                        flex      : [[1, 1, '100%']], // growable, shrinkable, initial 100% parent's width
+                        alignSelf : 'stretch',        // follows parent's height
+                        
+                        
+                        
+                        // customize:
+                        ...usesGeneralProps(usesPrefixedProps(cssProps, 'btn')), // apply general cssProps starting with btn***
+                    }),
                     
                     
                     
                     // overwrites propName = {btn}propName:
                     ...overwriteProps(cssDecls, usesPrefixedProps(cssProps, 'btn')),
                 }),
-            ]),
-            rule('.togglerBtn', [
-                layout({
-                    ...children(labelElm, [
-                        layout({
-                            // customize:
-                            ...usesGeneralProps(usesPrefixedProps(cssProps, 'togglerBtn')), // apply general cssProps starting with togglerBtn***
-                        }),
-                    ]),
-                    
-                    
-                    
-                    // overwrites propName = {togglerBtn}propName:
-                    ...overwriteProps(cssDecls, usesPrefixedProps(cssProps, 'togglerBtn')),
+            }),
+            rule('.togglerBtn', {
+                ...children(labelElm, {
+                    // customize:
+                    ...usesGeneralProps(usesPrefixedProps(cssProps, 'togglerBtn')), // apply general cssProps starting with togglerBtn***
                 }),
-            ]),
+                
+                
+                
+                // overwrites propName = {togglerBtn}propName:
+                ...overwriteProps(cssDecls, usesPrefixedProps(cssProps, 'togglerBtn')),
+            }),
             
-            rule('.switch', [
-                layout({
-                    // children:
-                    ...children(inputElm, [
-                        layout({
-                            // sizes:
-                            inlineSize   : '2em',   // make the width twice the height
-                            
-                            
-                            
-                            // borders:
-                            // circle corners on top:
-                            [borderRadiusDecls.borderStartStartRadius] : '0.5em',
-                            [borderRadiusDecls.borderStartEndRadius  ] : '0.5em',
-                            // circle corners on bottom:
-                            [borderRadiusDecls.borderEndStartRadius  ] : '0.5em',
-                            [borderRadiusDecls.borderEndEndRadius    ] : '0.5em',
-                            
-                            
-                            
-                            // customize:
-                            ...usesGeneralProps(usesPrefixedProps(cssProps, 'switch')), // apply general cssProps starting with switch***
-                        }),
-                    ]),
-                    
-                    
-                    
-                    // overwrites propName = {switch}propName:
-                    ...overwriteProps(cssDecls, usesPrefixedProps(cssProps, 'switch')),
-                }),
-            ]),
-        ]),
-        variants([
-            notNude([
-                layout({
-                    // children:
-                    ...children(inputElm, [
-                        layout({
-                            // borders:
-                            [borderDecls.borderCol] : 'currentColor', // make a contrast border between indicator & filler
-                        }),
-                    ]),
-                }),
-            ]),
-            isNude([
-                layout({
-                    // foregrounds:
-                    foreg     : [[mildRefs.foregFn], '!important'], // no valid/invalid animation
-                    
-                    
-                    
-                    // backgrounds:
-                    backg     : 'none !important', // discard background, no valid/invalid animation
+            rule('.switch', {
+                // children:
+                ...children(inputElm, {
+                    // sizes:
+                    inlineSize   : '2em',   // make the width twice the height
                     
                     
                     
                     // borders:
-                    [borderStrokeDecls.borderWidth           ] : '0px', // discard border
-                    // remove rounded corners on top:
-                    [borderRadiusDecls.borderStartStartRadius] : '0px',
-                    [borderRadiusDecls.borderStartEndRadius  ] : '0px',
-                    // remove rounded corners on bottom:
-                    [borderRadiusDecls.borderEndStartRadius  ] : '0px',
-                    [borderRadiusDecls.borderEndEndRadius    ] : '0px',
+                    // circle corners on top:
+                    [borderRadiusDecls.borderStartStartRadius] : '0.5em',
+                    [borderRadiusDecls.borderStartEndRadius  ] : '0.5em',
+                    // circle corners on bottom:
+                    [borderRadiusDecls.borderEndStartRadius  ] : '0.5em',
+                    [borderRadiusDecls.borderEndEndRadius    ] : '0.5em',
                     
                     
                     
-                    // spacings:
-                    [paddingDecls.paddingInline] : '0px', // discard padding
-                    [paddingDecls.paddingBlock ] : '0px', // discard padding
-                    
-                    
-                    
-                    // animations:
-                    boxShadow : 'initial !important', // no focus animation
+                    // customize:
+                    ...usesGeneralProps(usesPrefixedProps(cssProps, 'switch')), // apply general cssProps starting with switch***
                 }),
-            ]),
-        ], { minSpecificityWeight: 2 }),
-    ]);
+                
+                
+                
+                // overwrites propName = {switch}propName:
+                ...overwriteProps(cssDecls, usesPrefixedProps(cssProps, 'switch')),
+            }),
+        ], { specificityWeight: 1 }),
+        ...variants([
+            notNude({
+                // children:
+                ...children(inputElm, {
+                    // borders:
+                    [borderDecls.borderCol] : 'currentColor',   // make a contrast border between indicator & filler
+                }),
+            }),
+            isNude({
+                // foregrounds:
+                foreg     : [[mildRefs.foregFn], '!important'], // no valid/invalid animation
+                
+                
+                
+                // animations:
+                boxShadow : [['initial'], '!important'],        // no focus animation
+            }),
+        ], { specificityWeight: 2 }),
+    });
 };
 export const usesCheckStates = () => {
     // dependencies:
@@ -652,26 +598,27 @@ export const usesCheckStates = () => {
     
     
     
-    return composition([
-        imports([
+    return style({
+        ...imports([
             // states:
             usesEditableActionControlStates(),
             checkClear(),
         ]),
-        layout({
+        ...style({
             // children:
-            ...children(inputElm, [
-                vars({
+            ...children(inputElm, {
+                ...vars({
+                    // copy focus effect from parent:
                     [focusBlurDecls.boxShadow] : 'inherit',
                     [focusBlurDecls.anim     ] : 'inherit',
                 }),
-            ]),
+            }),
         }),
-    ]);
+    });
 };
 
 export const useCheckSheet = createUseSheet(() => [
-    mainComposition([
+    mainComposition(
         imports([
             // layouts:
             usesCheckLayout(),
@@ -682,7 +629,7 @@ export const useCheckSheet = createUseSheet(() => [
             // states:
             usesCheckStates(),
         ]),
-    ]),
+    ),
 ], /*sheetId :*/'nx58strmq2'); // an unique salt for SSR support, ensures the server-side & client-side have the same generated class names
 
 
@@ -813,9 +760,6 @@ export interface CheckProps
         EditableActionControlProps<HTMLInputElement>,
         TogglerActiveProps,
         
-        // layouts:
-        NudeVariant,
-        
         // appearances:
         CheckVariant
 {
@@ -832,10 +776,6 @@ export interface CheckProps
     label?          : string
     
     
-    // events:
-    onChange?       : React.ChangeEventHandler<HTMLInputElement>
-    
-    
     // children:
     children?       : React.ReactNode
 }
@@ -846,7 +786,6 @@ export function Check(props: CheckProps) {
     
     
     // variants:
-    const nudeVariant  = useNudeVariant({ nude: (props.nude ?? true) });
     const checkVariant = useCheckVariant(props);
     
     
@@ -946,13 +885,13 @@ export function Check(props: CheckProps) {
             
             
             // variants:
+            nude={props.nude ?? true}
             mild={props.mild ?? false}
             
             
             // classes:
             mainClass={props.mainClass ?? sheet.main}
             variantClasses={[...(props.variantClasses ?? []),
-                nudeVariant.class,
                 checkVariant.class,
             ]}
             

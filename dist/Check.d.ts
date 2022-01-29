@@ -1,6 +1,5 @@
 import { default as React } from 'react';
 import type { Cust, PropEx } from '@cssfn/css-types';
-import { NudeVariant } from '@nodestrap/basic';
 import { TogglerActiveProps } from '@nodestrap/indicator';
 import { EditableActionControlProps } from '@nodestrap/editable-action-control';
 export interface CheckAnimVars {
@@ -17,15 +16,15 @@ export interface CheckAnimVars {
      */
     anim: any;
 }
-export declare const usesCheckAnim: () => readonly [() => import("@cssfn/cssfn").StyleCollection, import("@cssfn/css-var").ReadonlyRefs<CheckAnimVars>, import("@cssfn/css-var").ReadonlyDecls<CheckAnimVars>, {
-    readonly filters: () => (string | number)[];
-    readonly registerFilter: (item: Cust.Ref) => Set<string | number>;
+export declare const usesCheckAnim: () => readonly [() => import("@cssfn/cssfn").Rule, import("@cssfn/css-var").ReadonlyRefs<CheckAnimVars>, import("@cssfn/css-var").ReadonlyDecls<CheckAnimVars>, {
+    readonly filters: () => (Cust.Ref | Cust.General)[];
+    readonly registerFilter: (item: Cust.Ref) => Set<Cust.Ref | Cust.General>;
     readonly unregisterFilter: (item: Cust.Ref) => boolean;
-    readonly transfs: () => (string | number)[];
-    readonly registerTransf: (item: Cust.Ref) => Set<string | number>;
+    readonly transfs: () => (Cust.Ref | Cust.General)[];
+    readonly registerTransf: (item: Cust.Ref) => Set<Cust.Ref | Cust.General>;
     readonly unregisterTransf: (item: Cust.Ref) => boolean;
-    readonly anims: () => (string | number)[];
-    readonly registerAnim: (item: Cust.Ref) => Set<string | number>;
+    readonly anims: () => (Cust.Ref | Cust.General)[];
+    readonly registerAnim: (item: Cust.Ref) => Set<Cust.Ref | Cust.General>;
     readonly unregisterAnim: (item: Cust.Ref) => boolean;
 }];
 export interface CheckClearVars {
@@ -37,9 +36,9 @@ export interface CheckClearVars {
 }
 /**
  * Uses check & clear states.
- * @returns A `[Factory<StyleCollection>, ReadonlyRefs, ReadonlyDecls]` represents check & clear state definitions.
+ * @returns A `[Factory<Rule>, ReadonlyRefs, ReadonlyDecls]` represents check & clear state definitions.
  */
-export declare const usesCheckClearState: () => readonly [() => import("@cssfn/cssfn").StyleCollection, import("@cssfn/css-var").ReadonlyRefs<CheckClearVars>, import("@cssfn/css-var").ReadonlyDecls<CheckClearVars>];
+export declare const usesCheckClearState: () => readonly [() => import("@cssfn/cssfn").Rule, import("@cssfn/css-var").ReadonlyRefs<CheckClearVars>, import("@cssfn/css-var").ReadonlyDecls<CheckClearVars>];
 export declare type CheckStyle = 'btn' | 'togglerBtn' | 'switch';
 export interface CheckVariant {
     checkStyle?: CheckStyle;
@@ -50,9 +49,9 @@ export declare const useCheckVariant: (props: CheckVariant) => {
 export declare const inputElm = ":first-child";
 export declare const checkElm = "::before";
 export declare const labelElm = ":nth-child(1n+2)";
-export declare const usesCheckLayout: () => import("@cssfn/cssfn").StyleCollection;
-export declare const usesCheckVariants: () => import("@cssfn/cssfn").StyleCollection;
-export declare const usesCheckStates: () => import("@cssfn/cssfn").StyleCollection;
+export declare const usesCheckLayout: () => import("@cssfn/cssfn").Rule;
+export declare const usesCheckVariants: () => import("@cssfn/cssfn").Rule;
+export declare const usesCheckStates: () => import("@cssfn/cssfn").Rule;
 export declare const useCheckSheet: import("@cssfn/types").Factory<import("jss").Classes<"main">>;
 export declare const cssProps: import("@cssfn/css-config").Refs<{
     spacing: string;
@@ -115,12 +114,11 @@ export declare const cssProps: import("@cssfn/css-config").Refs<{
     switchAnimCheck: (string | PropEx.Keyframes)[][];
     switchAnimClear: (string | PropEx.Keyframes)[][];
 }>, cssConfig: import("@cssfn/css-config").CssConfigSettings;
-export interface CheckProps extends EditableActionControlProps<HTMLInputElement>, TogglerActiveProps, NudeVariant, CheckVariant {
+export interface CheckProps extends EditableActionControlProps<HTMLInputElement>, TogglerActiveProps, CheckVariant {
     defaultChecked?: boolean;
     checked?: boolean;
     type?: 'checkbox' | 'radio';
     label?: string;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
     children?: React.ReactNode;
 }
 export declare function Check(props: CheckProps): JSX.Element;
